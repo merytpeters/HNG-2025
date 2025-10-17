@@ -1,4 +1,5 @@
 """Utility functions"""
+
 import json
 import requests
 import os

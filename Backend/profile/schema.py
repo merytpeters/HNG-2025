@@ -1,4 +1,5 @@
 """User and Profile Schema"""
+
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, timezone
 from profile.utils import get_cat_fact
@@ -13,9 +14,7 @@ class User(BaseModel):
 class Profile(BaseModel):
     status: str
     user: User
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     fact: str
 
 
@@ -24,7 +23,7 @@ def get_profile():
         user = User(
             email="merytpeters@gmail.com",
             name="Akpevweoghene Merit Edafe",
-            stack="Python(FastAPI, Djanjo, Flask), MERN, PERN, CSS, Figma"
+            stack="Python(FastAPI, Djanjo, Flask), MERN, PERN, CSS, Figma",
         )
         fact = get_cat_fact()
         if isinstance(fact, dict):
@@ -32,10 +31,7 @@ def get_profile():
         elif fact is None:
             fact = ""
         profile = Profile(
-            status="success",
-            user=user,
-            timestamp=datetime.now(),
-            fact=fact
+            status="success", user=user, timestamp=datetime.now(), fact=fact
         )
         return profile
     except Exception:
