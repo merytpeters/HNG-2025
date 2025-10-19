@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from profile.utils import get_cat_fact
-from profile.schema import Profile, get_profile
+from myprofile.utils import get_cat_fact
+from myprofile.schema import Profile, get_profile
 import logging
 
 
