@@ -14,4 +14,4 @@ RUN python -m venv .venv && \
 COPY . .
 
 # Start app with Uvicorn
-CMD /bin/bash -c "/app/.venv/bin/uvicorn Backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"
+CMD /bin/bash -c "/app/.venv/bin/uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"
