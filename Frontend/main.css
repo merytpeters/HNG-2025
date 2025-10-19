@@ -1,0 +1,179 @@
+body {
+    background-color: #222;
+    color: white;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+}
+
+article {
+    position: relative;
+    width: 50rem;
+    height: 20rem;
+    background-color: rgb(23, 22, 22);
+    padding: 2rem;
+    box-shadow: 10px 20px 18px rgba(189, 188, 188, 0.5);
+    border-radius: 1rem;
+}
+
+figure {
+    position: absolute;
+    left: 1rem;
+    width: fit-content;
+    top: 1rem;
+}
+
+img {
+    border-radius: 50%;
+    box-shadow: 2px 4px 8px rgba(189, 188, 188, 0.5);
+}
+
+h2, p, time {
+    position: relative;
+    margin-top: 0.5rem;
+    display: block;
+    width: 12rem;
+    top: 8rem;
+}
+
+nav {
+    position: relative;
+    width: fit-content;
+    top: 8rem;
+}
+
+nav ul {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    padding: 0;
+}
+
+nav li a {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 0.5rem;
+  transition: background 0.3s, color 0.3s;
+}
+
+.vertical-line {
+    position: absolute;
+    width: 2px;
+    height: 80%;
+    background-color: aliceblue;
+    display: block;
+    left: calc(40% - 30px);
+    top: 2rem;
+}
+
+article section {
+    position: absolute;
+    display: flex;
+    left: calc(40% + 1.5rem);
+    width: calc(60% - 2rem);
+    height: auto;
+}
+
+article section ul {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0.5rem;
+    gap: 1rem;
+}
+
+article section:first-of-type {
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+
+@media (max-width: 999px) {
+    article {
+        width: 70%;
+        height: 50%;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    figure {
+        position: relative;
+        left: 0;
+        top: 0;
+        margin: 0 auto 1rem auto;
+    }
+
+    img {
+        width: 150px;
+        height: 150px;
+    }
+
+    h2 {
+        width: 100%;
+        text-align: center;
+        top: 12em;
+        margin-top: 1em;
+    }
+
+    p, time {
+        width: 100%;
+        text-align: center;
+        top: 16em;
+        margin-top: 1em;
+    }
+
+    nav {
+        width: 100%;
+        margin-top: 0.2rem;
+        top: 4em;
+    }
+
+    nav ul {
+        justify-content: center;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .vertical-line {
+        position: relative;
+        width: 80%;
+        height: 2px;
+        margin: 1rem 0;
+        left: 0;
+        top: 4em;
+    }
+
+    article section {
+        position: relative;
+        width: 100%;
+        margin-top: 1rem;
+        flex-direction: row;
+        justify-content: center;
+        left: 0;
+        top: 0;
+        bottom: 1rem;
+    }
+
+   article section:last-of-type {
+        margin-top: 1rem;
+    }
+
+    article section ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        padding: 0;
+    }
+}
+
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Merit Edafe">
+    <meta name="description" content="This is my profile card.">
+
+    <title>Merit's Profile Card</title>
+
+    <link rel="icon" href="" type="image/x-icon">
+    <link rel="stylesheet" href="main.css" type="text/css">
+</head>
+
+<body>
+    <article data-testid="test-profile-card">
+        <h2 data-testid="test-user-name" aria-label="User Name: Merit Edafe">Merit Edafe</h2>
+        <p data-testid="test-user-bio">Full Stack Software Engineer</p>
+        <time id="user-time" data-testid="test-user-time"></time>
+        <figure data-testid="test-user-avatar">
+            <img class="myphoto" src="img/merytpeters.png" alt="myphoto" width="100px" height="100px">
+            <figcaption></figcaption>
+        </figure>
+        <nav>
+            <ul data-testid="test-user-social-links">
+                <li data-testid="test-user-social-linkedin"><a href="https://www.linkedin.com/in/edafemerit" target="_blank" rel="noopener noreferrer">💼 linkedin</a></li>
+                <li data-testid="test-user-social-portfolio"><a href="https://meritedafe.vercel.app" target="_blank" rel="noopener noreferrer">🌐 portfolio</a></li>
+                <li data-testid="test-user-social-twitter"><a href="https://x.com/merytpeters_" target="_blank" rel="noopener noreferrer"> 🐦 twitter</a></li>
+            </ul>
+        </nav>
+        <div class="vertical-line"></div>
+        <section data-testid="test-user-hobbies">
+            <ul>
+                <li>Reading</li>
+                <li>Writing</li>
+                <li>Technical writing</li>
+                <li>Design</li>
+            </ul>
+        </section>
+        <section data-testid="test-user-dislikes">
+            <ul>
+                <li>Noise</li>
+                <li>Dishonesty</li>
+                <li>Monotony</li>
+                <li>Paying bills</li>
+            </ul>
+        </section>
+    </article>
+    <script src="index.js"></script>
+</body>
