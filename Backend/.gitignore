@@ -84,7 +84,6 @@ ipython_config.py
 *.sqlite3
 
 # Cache files
-cache.json
 *.cache
 
 # OS
