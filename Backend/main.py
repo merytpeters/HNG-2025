@@ -45,6 +45,11 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def entry_point():
+    return {"message": "Welcome to my HNG API endpoint stack"}
+
+
 @app.get("/health")
 def health_check():
     return {"health": "All good, 100%"}
