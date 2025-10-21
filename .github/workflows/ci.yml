@@ -34,7 +34,7 @@ jobs:
         run: |
           uvicorn main:app --host 127.0.0.1 --port 8000 &
           sleep 3
-          curl -f http://127.0.0.1:8000 || (echo "❌ App failed to start" && exit 1)
+          curl -f http://127.0.0.1:8000/health || (echo "❌ App failed to start" && exit 1)
           pkill -f uvicorn
 
       - name: Confirm workflow completion
