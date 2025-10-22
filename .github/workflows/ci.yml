@@ -61,7 +61,7 @@ jobs:
         working-directory: Backend
         run: |
           # Map container port 80 → host 8080
-          docker run -d --name hng-backend-test -p 8080:80 hng-backend
+          docker run -d --name hng-backend-test -p 8080:80 -e PORT=8080 hng-backend
 
           echo "Waiting for the container to start..."
           sleep 5
