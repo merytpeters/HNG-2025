@@ -13,7 +13,6 @@ from string_analyzers.string_analyzer import (
 from typing import List, Dict, Any, Optional
 import os
 import json
-import spacy
 import re
 
 
