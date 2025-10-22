@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, timezone
-from profile.utils import get_cat_fact
+from myprofile.utils import get_cat_fact
 
 
 class User(BaseModel):

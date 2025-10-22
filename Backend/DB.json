@@ -1,0 +1,19 @@
+{
+    "2b2961a431b23c9007efe270c1d7eb79c19d4192d7cd2d924176eb0b19e7d2a1": {
+        "id": "2b2961a431b23c9007efe270c1d7eb79c19d4192d7cd2d924176eb0b19e7d2a1",
+        "value": "car",
+        "properties": {
+            "length": 3,
+            "is_palindrome": false,
+            "unique_characters": 3,
+            "word_count": 1,
+            "sha256_hash": "2b2961a431b23c9007efe270c1d7eb79c19d4192d7cd2d924176eb0b19e7d2a1",
+            "character_frequency_map": {
+                "c": 1,
+                "a": 1,
+                "r": 1
+            }
+        },
+        "created_at": "2025-10-21T20:28:15.627494"
+    }
+}

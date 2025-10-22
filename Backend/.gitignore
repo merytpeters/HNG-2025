@@ -84,10 +84,10 @@ ipython_config.py
 *.sqlite3
 
 # Cache files
-cache.json
 *.cache
 
 # OS
 .DS_Store
 Thumbs.db
 Desktop.ini
+another_method.py

@@ -8,10 +8,15 @@ WORKDIR /app
 # Install dependencies
 COPY requirements.txt .
 RUN python -m venv .venv && \
+    .venv/bin/pip install --upgrade pip && \
     .venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy app source
 COPY . .
 
-# Start app with Uvicorn
-CMD /bin/bash -c "/app/.venv/bin/uvicorn Backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"
+# Expose port 80 (Sevella expects this)
+EXPOSE 80
+
+# Start app (dynamic port handled in start.py)
+CMD ["/app/.venv/bin/python", "start.py"]
+
