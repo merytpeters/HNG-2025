@@ -46,39 +46,39 @@ jobs:
         run: echo "✅ HNG CI completed successfully!"
 
   docker-test:
-    runs-on: ubuntu-latest
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Build Docker image
-        working-directory: Backend
-        run: |
-          docker build -t hng-backend .
+    - name: Build Docker image
+      working-directory: Backend
+      run: |
+        docker build -t hng-backend .
 
-      - name: Run Docker container
-        working-directory: Backend
-        run: |
-          # Map container port 80 → host 8080
-          docker run -d --name hng-backend-test -p 8080:80 -e PORT=80 hng-backend
+    - name: Run Docker container
+      working-directory: Backend
+      run: |
+        # Map container port 80 → host 8080
+        docker run -d --name hng-backend-test -p 8080:80 -e PORT=80 hng-backend
 
-          echo "Waiting for the container to start..."
-          sleep 5
+        echo "Waiting for the container to start..."
+        sleep 5
 
-          # Health check on mapped host port
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
-          if [ "$RESPONSE" != "200" ]; then
-            echo "❌ Health check failed with status $RESPONSE"
-            echo "Container logs:"
-            docker logs hng-backend-test
-            exit 1
-          else
-            echo "✅ Health check passed"
-          fi
+        # Health check on mapped host port
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
+        if [ "$RESPONSE" != "200" ]; then
+          echo "❌ Health check failed with status $RESPONSE"
+          echo "Container logs:"
+          docker logs hng-backend-test
+          exit 1
+        else
+          echo "✅ Health check passed"
+        fi
 
-          docker stop hng-backend-test
-          docker rm hng-backend-test
+        docker stop hng-backend-test
+        docker rm hng-backend-test
 
-      - name: Confirm workflow completion
-        run: echo "✅ Docker CI completed successfully!"
+    - name: Confirm workflow completion
+      run: echo "✅ Docker CI completed successfully!"

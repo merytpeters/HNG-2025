@@ -18,8 +18,9 @@ RUN .venv/bin/python -m spacy download en_core_web_md && \
 # Copy app source
 COPY . .
 
-# Expose port 80 (Sevalla expects this)
+# Expose port 80 (Sevella expects this)
 EXPOSE 80
 
-# Start app with Uvicorn on dynamic port
-CMD ["/app/.venv/bin/python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
+# Start app (dynamic port handled in start.py)
+CMD ["/app/.venv/bin/python", "start.py"]
+
