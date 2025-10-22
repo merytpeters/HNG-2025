@@ -32,9 +32,10 @@ jobs:
       - name: Verify FastAPI app can start
         working-directory: Backend
         run: |
-          uvicorn main:app --host 127.0.0.1 --port 80 &
+          # Use high port for CI (no root required)
+          uvicorn main:app --host 127.0.0.1 --port 8000 &
           sleep 3
-          curl -f http://127.0.0.1:80/health || (echo "❌ App failed to start" && exit 1)
+          curl -f http://127.0.0.1:8000/health || (echo "❌ App failed to start" && exit 1)
           pkill -f uvicorn
 
       - name: Confirm workflow completion
@@ -55,13 +56,13 @@ jobs:
       - name: Run Docker container
         working-directory: Backend
         run: |
-          docker run -d --name hng-backend-test -p 8080:8080 \
-            -e PORT=8080 hng-backend
+          # Map container port 80 → host 8080
+          docker run -d --name hng-backend-test -p 8080:80 -e PORT=8080 hng-backend
 
           echo "Waiting for the container to start..."
           sleep 5
 
-          # Check /health endpoint
+          # Health check on mapped host port
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
           if [ "$RESPONSE" != "200" ]; then
             echo "❌ Health check failed with status $RESPONSE"
