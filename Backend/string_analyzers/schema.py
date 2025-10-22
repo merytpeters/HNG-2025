@@ -220,81 +220,40 @@ def filter_by_given_params(
     return results, filters_applied
 
 
-try:
-    nlp = spacy.load("en_core_web_md")
-except OSError:
-    print("Model 'en_core_web_md' not found — falling back to 'en_core_web_sm'")
-    nlp = spacy.load("en_core_web_sm")
-
-
-def detect_filter_params(data: str) -> dict[str, Any]:
-    """Extract NLP-based filter params from a natural language query."""
+def detect_filter_params(data: str):
+    """Natural language filter that returns the parsed_filters"""
     text_lower = data.lower()
-    doc = nlp(text_lower)
-
     params: dict[str, Any] = {
         "word_count": None,
         "is_palindrome": None,
         "contains_character": None,
-        "min_length": None,
-        "max_length": None,
+        "min_length" : None,
+        "max_length" : None
     }
-
-    if any(t.lemma_ in ("palindrome", "palindromic") for t in doc):
+    
+        
+    if "palindrome" in text_lower or "palindromic" in text_lower:
         params["is_palindrome"] = True
 
     word_map = {
-        "single": 1,
-        "one": 1,
-        "two": 2,
-        "three": 3,
-        "four": 4,
-        "five": 5,
-        "six": 6,
-        "seven": 7,
-        "eight": 8,
-        "nine": 9,
-        "ten": 10,
+        "single": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10
     }
+    wc_match = re.search(r"\b(single|one|two|three|four|five|six|seven|eight|nine|ten)\s+word", text_lower)
+    if wc_match:
+        params["word_count"] = word_map[wc_match.group(1)]
+    else:
+        num_match = re.search(r"(\d+)\s+word", text_lower)
+        if num_match:
+            params["word_count"] = int(num_match.group(1))
 
-    for ent in doc.ents:
-        if (
-            ent.label_ == "CARDINAL"
-            and "word" in text_lower[text_lower.find(ent.text) :]
-        ):
-            try:
-                params["word_count"] = int(ent.text)
-            except ValueError:
-                params["word_count"] = word_map.get(ent.text)
-
-    if params["word_count"] is None:
-        match = re.search(
-            r"\b(single|one|two|three|four|five|six|seven|eight|nine|ten)\s+word",
-            text_lower,
-        )
-        if match:
-            params["word_count"] = word_map[match.group(1)]
-        else:
-            num_match = re.search(r"(\d+)\s+word", text_lower)
-            if num_match:
-                params["word_count"] = int(num_match.group(1))
-
-    for token in doc:
-        if token.lemma_ in ("long", "lengthy", "more"):
-            for child in token.children:
-                if child.like_num:
-                    params["min_length"] = int(child.text) + 1
-        elif token.lemma_ in ("short", "less"):
-            for child in token.children:
-                if child.like_num:
-                    params["max_length"] = int(child.text) - 1
 
     min_match = re.search(r"(?:longer|more)\s+than\s+(\d+)", text_lower)
-    if min_match and not params["min_length"]:
+    if min_match:
         params["min_length"] = int(min_match.group(1)) + 1
 
     max_match = re.search(r"(?:shorter|less)\s+than\s+(\d+)", text_lower)
-    if max_match and not params["max_length"]:
+    if max_match:
         params["max_length"] = int(max_match.group(1)) - 1
 
     char_match = re.search(r"(?:letter|character)\s+([a-z])", text_lower)
@@ -304,9 +263,10 @@ def detect_filter_params(data: str) -> dict[str, Any]:
         alt_match = re.search(r"(?:containing|contains|with)\s+([a-z])\b", text_lower)
         if alt_match:
             params["contains_character"] = alt_match.group(1)
+
         elif "first vowel" in text_lower:
             params["contains_character"] = "a"
         elif "first consonant" in text_lower:
             params["contains_character"] = "b"
-
+    
     return params
