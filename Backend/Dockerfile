@@ -1,8 +1,7 @@
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8080
+    PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
@@ -14,8 +13,9 @@ RUN python -m venv .venv && \
 # Copy app source
 COPY . .
 
-EXPOSE 8080
+# Expose port 80 (Sevalla expects this)
+EXPOSE 80
 
-# Start app with Uvicorn
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Start app with Uvicorn on port 80
+CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
