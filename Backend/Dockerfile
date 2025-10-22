@@ -21,5 +21,5 @@ COPY . .
 # Expose port 80 (Sevalla expects this)
 EXPOSE 80
 
-# Start app with Uvicorn on port 80
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# Start app with Uvicorn on dynamic port
+CMD /app/.venv/bin/uvicorn main:app --host 0.0.0.0 --port ${PORT}
