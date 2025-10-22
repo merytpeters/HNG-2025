@@ -227,26 +227,36 @@ def detect_filter_params(data: str):
         "word_count": None,
         "is_palindrome": None,
         "contains_character": None,
-        "min_length" : None,
-        "max_length" : None
+        "min_length": None,
+        "max_length": None,
     }
-    
-        
+
     if "palindrome" in text_lower or "palindromic" in text_lower:
         params["is_palindrome"] = True
 
     word_map = {
-        "single": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
-        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10
+        "single": 1,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
     }
-    wc_match = re.search(r"\b(single|one|two|three|four|five|six|seven|eight|nine|ten)\s+word", text_lower)
+    wc_match = re.search(
+        r"\b(single|one|two|three|four|five|six|seven|eight|nine|ten)\s+word",
+        text_lower,
+    )
     if wc_match:
         params["word_count"] = word_map[wc_match.group(1)]
     else:
         num_match = re.search(r"(\d+)\s+word", text_lower)
         if num_match:
             params["word_count"] = int(num_match.group(1))
-
 
     min_match = re.search(r"(?:longer|more)\s+than\s+(\d+)", text_lower)
     if min_match:
@@ -268,5 +278,5 @@ def detect_filter_params(data: str):
             params["contains_character"] = "a"
         elif "first consonant" in text_lower:
             params["contains_character"] = "b"
-    
+
     return params
