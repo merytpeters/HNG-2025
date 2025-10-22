@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 80
 
 # Start app with Uvicorn on dynamic port
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
+CMD ["/app/.venv/bin/python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
