@@ -11,10 +11,6 @@ RUN python -m venv .venv && \
     .venv/bin/pip install --upgrade pip && \
     .venv/bin/pip install --no-cache-dir -r requirements.txt
 
-# Install spaCy models inside the container
-RUN .venv/bin/python -m spacy download en_core_web_md && \
-    .venv/bin/python -m spacy download en_core_web_sm
-
 # Copy app source
 COPY . .
 
