@@ -1,0 +1,41 @@
+body {
+    background-color: #222;
+    color: white;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+}
+
+form {
+    position: relative;
+    width: 20rem;
+    height: 36rem;
+    background-color: rgb(23, 22, 22);
+    padding: 2rem;
+    box-shadow: 10px 20px 18px rgba(189, 188, 188, 0.5);
+    border-radius: 1rem;
+}
+
+button {
+    background-color: rgb(22, 87, 36);
+    color: azure;
+    border-radius: 6px;
+    width: 8rem;
+    height: 1.5rem;
+}
+
+span {
+    background-color: brown;
+    width: fit-content;
+    height: 1.5rem;
+}
+
+div {
+    background-color: chartreuse;
+    width: fit-content;
+    height: 1.5rem;
+}

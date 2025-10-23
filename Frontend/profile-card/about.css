@@ -1,0 +1,35 @@
+body {
+    background-color: #222;
+    color: white;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    position: absolute;
+}
+
+main {
+    position: relative;
+    width: 35rem;
+    height: fit-content;
+    background-color: rgb(23, 22, 22);
+    padding: 2em;
+    box-shadow: 10px 20px 18px rgba(189, 188, 188, 0.5);
+    border-radius: 1rem;
+    margin: 3em;
+}
+
+section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+h2, h3 {
+    position: relative;
+    display: flex;
+    align-self: center;
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Merit Edafe">
+    <meta name="description" content="contact page">
+
+    <title>Contact Me</title>
+
+    <link rel="stylesheet" href="contact.css" type="text/css">
+</head>
+
+<body>
+    <form id="contactForm" novalidate>
+    <fieldset>
+        <legend>Contact Me</legend>
+        <p>
+            <label for="fullName">Full Name:</label>
+            <input data-testid="test-contact-name" type="text" name="fullName" id="fullName" placeholder="Your name"
+                autocomplete="on" required autofocus aria-describedby="nameError">
+                <br>
+                <br>
+                <span id="nameError" role="alert" data-testid="test-contact-error-name"></span> 
+        </p>
+        <p>
+            <label for="email">Email:</label>
+            <input data-testid="test-contact-email" type="email" name="email" id="email" placeholder="Your email"
+                autocomplete="on" required aria-describedby="emailError">
+                <br>
+                <br>
+                <span id="emailError" role="alert" data-testid="test-contact-error-email"></span>
+        </p>
+        <p>
+            <label for="subject">Subject:</label>
+            <input data-testid="test-contact-subject" type="text" name="subject" id="subject" placeholder="Subject"
+                autocomplete="on" required aria-describedby="subjectError">
+                <br>
+                <br>
+            <span id="subjectError" role="alert" data-testid="test-contact-error-subject"></span>
+        </p>
+        <p>
+            <label for="message">Message:</label> <br>
+            <br>
+            <textarea data-testid="test-contact-message" name="message" id="message"
+                placeholder="Leave Your Message" required cols="30" rows="10" aria-describedby="messageError"></textarea>
+            <br>
+            <br>
+            <span id="messageError" role="alert" data-testid="test-contact-error-message"></span>
+        </p>
+    </fieldset>
+    <br>
+    <button aria-describedby="successMessage" data-testid="test-contact-submit" type="submit">Submit</button>
+    <br>
+    <br>
+    <div data-testid="test-contact-success" id="successMessage" role="alert"></div>
+    </form>
+
+    <script>
+    const form = document.getElementById('contactForm');
+    const successMessage = document.getElementById('successMessage');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let valid = true;
+
+      form.querySelectorAll('input, textarea').forEach((field) => {
+        const errorId = field.getAttribute('aria-describedby');
+        const errorSpan = document.getElementById(errorId);
+        errorSpan.textContent = '';
+
+        if (!field.value.trim()) {
+          errorSpan.textContent = 'This field is required.';
+          valid = false;
+        } else if (
+          field.type === 'email' &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)
+        ) {
+          errorSpan.textContent = 'Please enter a valid email address.';
+          valid = false;
+        }
+      });
+
+      if (valid) {
+        successMessage.textContent = 'Your message has been sent successfully!';
+        form.reset();
+      } else {
+        successMessage.textContent = '';
+      }
+    });
+  </script>
+</body>
