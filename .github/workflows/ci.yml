@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -40,6 +42,8 @@ jobs:
 
   docker-test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout repository
