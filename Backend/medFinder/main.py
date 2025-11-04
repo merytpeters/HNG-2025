@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from typing import cast, List, Any
 from .meddy_reponses import meddy_reply
-from .schema import UserMessage
 import logging
 import sys
 
@@ -42,11 +43,82 @@ def entry_point():
     }
 
 
-@app.post("/reply", status_code=200)
-def meddy_chat(user_message: UserMessage):
-    if not user_message.message.strip():
-        raise HTTPException(
-            status_code=400, detail="The 'message' field cannot be empty."
+@app.post("/a2a/meddy")
+async def a2a_endpoint(request: Request):
+    """Handle incoming JSON-RPC requests for Meddy.
+
+    This endpoint intentionally uses the raw request dict instead of strict
+    pydantic models for the incoming body to be tolerant of variations in
+    `parts` (e.g., fields named `content` vs `text`). It returns a JSON-RPC
+    compatible dict with the meddy replies.
+    """
+    body = None
+    try:
+        body = await request.json()
+
+        if body.get("jsonrpc") != "2.0" or "id" not in body:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "jsonrpc": "2.0",
+                    "id": body.get("id"),
+                    "error": {
+                        "code": -32600,
+                        "message": "Invalid Request: jsonrpc must be '2.0' and id is required",
+                    },
+                },
+            )
+
+        method = body.get("method")
+        params = body.get("params", {}) or {}
+
+        messages: List[Any] = []
+        if method == "message/send":
+            msg = params.get("message")
+            if msg:
+                messages = [msg]
+            else:
+                messages = params.get("messages", []) or []
+        elif method == "execute":
+            messages = params.get("messages", []) or []
+        else:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "jsonrpc": "2.0",
+                    "id": body.get("id"),
+                    "error": {"code": -32601, "message": "Method not found"},
+                },
+            )
+
+        results = []
+        for msg in messages:
+            parts = msg.get("parts", []) or []
+            # accept either 'content' or 'text' inside parts
+            text_parts = [p.get("content") or p.get("text") or "" for p in parts]
+            text_content = " ".join([t for t in text_parts if t])
+            reply = meddy_reply(text_content)
+            results.append({"reply": reply})
+
+        return JSONResponse(
+            status_code=200,
+            content={"jsonrpc": "2.0", "id": body.get("id"), "result": results},
         )
-    reply = meddy_reply(user_message.message)
-    return {"reply": reply}
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "jsonrpc": "2.0",
+                "id": (
+                    body.get("id")
+                    if ("body" in locals() and isinstance(body, dict))
+                    else None
+                ),
+                "error": {
+                    "code": -32603,
+                    "message": "Internal error",
+                    "data": {"details": str(e)},
+                },
+            },
+        )
