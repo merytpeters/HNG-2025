@@ -115,7 +115,11 @@ async def a2a_endpoint(request: Request):
             # Return simple result array when we couldn't parse into the model
             return JSONResponse(
                 status_code=200,
-                content={"jsonrpc": "2.0", "id": body.get("id"), "result": [{"reply": r} for r in replies]},
+                content={
+                    "jsonrpc": "2.0",
+                    "id": body.get("id"),
+                    "result": [{"reply": r} for r in replies],
+                },
             )
 
         # If parsing succeeded, use structured models to build a TaskResult
@@ -143,7 +147,10 @@ async def a2a_endpoint(request: Request):
                 content={
                     "jsonrpc": "2.0",
                     "id": rpc_request.id,
-                    "error": {"code": -32602, "message": "Invalid params: no message provided"},
+                    "error": {
+                        "code": -32602,
+                        "message": "Invalid params: no message provided",
+                    },
                 },
             )
 
