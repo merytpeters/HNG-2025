@@ -73,10 +73,7 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         # Extract messages
         if method == "message/send":
             msg = params.get("message")
-            if msg:
-                messages = [msg]
-            else:
-                messages = params.get("messages", []) or []
+            messages = [msg] if msg else params.get("messages", []) or []
         elif method == "execute":
             messages = params.get("messages", []) or []
         else:
@@ -111,7 +108,9 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
             if p.get("content") or p.get("text")
         ]
         text_content = " ".join(text_parts)
-        reply_text = meddy_reply(text_content)
+
+        # **Await async meddy_reply**
+        reply_text = await meddy_reply(text_content)
 
         # IDs and timestamp
         task_id = str(uuid4())
