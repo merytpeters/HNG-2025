@@ -3,17 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import cast, List, Any, Optional
 from .meddy_reponses import meddy_reply
-from .schema import (
-    JSONRPCRequest,
-    JSONRPCResponse,
-    TaskResult,
-    TaskStatus,
-    A2AMessage,
-    MessagePart,
-)
 import logging
 import sys
 from uuid import uuid4
+from datetime import datetime, timezone
 
 
 logging.basicConfig(
@@ -52,15 +45,9 @@ def entry_point():
     }
 
 
-@app.post("/a2a/meddy")
-async def a2a_endpoint(request: Request):
-    """Handle incoming JSON-RPC requests for Meddy.
-
-    This endpoint intentionally uses the raw request dict instead of strict
-    pydantic models for the incoming body to be tolerant of variations in
-    `parts` (e.g., fields named `content` vs `text`). It returns a JSON-RPC
-    compatible dict with the meddy replies.
-    """
+@app.post("/a2a/{agentId}")
+async def a2a_endpoint(agentId: str, request: Request):
+    """Telex-compatible endpoint for Meddy location finder (no file_url)."""
     body = None
     try:
         body = await request.json()
@@ -78,75 +65,35 @@ async def a2a_endpoint(request: Request):
                 },
             )
 
-        # Attempt to validate/parse into the JSONRPCRequest model
-        try:
-            rpc_request = JSONRPCRequest(**body)
-        except Exception:
-            # Fall back to raw parsing for robustness
-            method = body.get("method")
-            params = body.get("params", {}) or {}
-            messages: List[Any] = []
-            if method == "message/send":
-                msg = params.get("message")
-                if msg:
-                    messages = [msg]
-                else:
-                    messages = params.get("messages", []) or []
-            elif method == "execute":
-                messages = params.get("messages", []) or []
+        params = body.get("params", {}) or {}
+        method = body.get("method")
+        messages: List[Any] = []
+
+        if method == "message/send":
+            msg = params.get("message")
+            if msg:
+                messages = [msg]
             else:
-                return JSONResponse(
-                    status_code=400,
-                    content={
-                        "jsonrpc": "2.0",
-                        "id": body.get("id"),
-                        "error": {"code": -32601, "message": "Method not found"},
-                    },
-                )
-
-            # extract text content from raw messages
-            replies: List[str] = []
-            for msg in messages:
-                parts = msg.get("parts", []) or []
-                text_parts = [p.get("content") or p.get("text") or "" for p in parts]
-                text_content = " ".join([t for t in text_parts if t])
-                replies.append(meddy_reply(text_content))
-
-            # Return simple result array when we couldn't parse into the model
+                messages = params.get("messages", []) or []
+        elif method == "execute":
+            messages = params.get("messages", []) or []
+        else:
             return JSONResponse(
-                status_code=200,
+                status_code=400,
                 content={
                     "jsonrpc": "2.0",
                     "id": body.get("id"),
-                    "result": [{"reply": r} for r in replies],
+                    "error": {"code": -32601, "message": "Method not found"},
                 },
             )
 
-        # If parsing succeeded, use structured models to build a TaskResult
-        messages: List[A2AMessage] = []
-        context_id: Optional[str] = None
-        task_id: Optional[str] = None
-
-        if rpc_request.method == "message/send":
-            messages = [rpc_request.params.message]
-            config = rpc_request.params.configuration
-        elif rpc_request.method == "execute":
-            messages = rpc_request.params.messages
-            # Execute params may include context/task ids
-            if hasattr(rpc_request.params, "contextId"):
-                context_id = getattr(rpc_request.params, "contextId")
-            if hasattr(rpc_request.params, "taskId"):
-                task_id = getattr(rpc_request.params, "taskId")
-
-        # Use last user message
         user_message = messages[-1] if messages else None
-
         if not user_message:
             return JSONResponse(
                 status_code=400,
                 content={
                     "jsonrpc": "2.0",
-                    "id": rpc_request.id,
+                    "id": body.get("id"),
                     "error": {
                         "code": -32602,
                         "message": "Invalid params: no message provided",
@@ -154,50 +101,61 @@ async def a2a_endpoint(request: Request):
                 },
             )
 
-        # Extract text from A2AMessage parts
-        text_content = ""
-        for part in user_message.parts:
-            if part.kind == "text" and part.text:
-                text_content = part.text
-                break
-
+        # Extract text content
+        parts = user_message.get("parts", []) or []
+        text_parts = [
+            p.get("content") or p.get("text")
+            for p in parts
+            if p.get("content") or p.get("text")
+        ]
+        text_content = " ".join(text_parts)
         reply_text = meddy_reply(text_content)
 
-        # Build response message and TaskResult
-        ctx_id = context_id or str(uuid4())
-        t_id = task_id or str(uuid4())
+        # Generate IDs and timestamp
+        task_id = str(uuid4())
+        message_id = str(uuid4())
+        artifact_id = str(uuid4())
+        context_id = str(uuid4())
+        timestamp = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
-        # Construct message part using alias keys to be compatible with pydantic config
-        response_part = MessagePart(**{"type": "text", "content": reply_text})
-        response_message = A2AMessage(
-            role="agent",
-            parts=[response_part],
-            taskId=t_id,
-        )
+        # Build response matching Telex format, inline artifacts
+        response = {
+            "jsonrpc": "2.0",
+            "id": body.get("id"),
+            "result": {
+                "id": task_id,
+                "contextId": context_id,
+                "status": {
+                    "state": "input-required",
+                    "timestamp": timestamp,
+                    "message": {
+                        "messageId": message_id,
+                        "role": "agent",
+                        "parts": [{"kind": "text", "text": reply_text}],
+                        "kind": "message",
+                        "taskId": task_id,
+                    },
+                },
+                "artifacts": [
+                    {
+                        "artifactId": artifact_id,
+                        "name": "service-list",
+                        "parts": [{"kind": "text", "text": reply_text}],
+                    }
+                ],
+                "history": messages,
+                "kind": "task",
+            },
+        }
 
-        status = TaskStatus(state="completed", message=response_message)
-
-        result = TaskResult(
-            id=t_id,
-            contextId=ctx_id,
-            status=status,
-            artifacts=[],
-            history=messages,
-        )
-
-        response = JSONRPCResponse(id=rpc_request.id, result=result)
-        return response.dict()
+        return JSONResponse(status_code=200, content=response)
 
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={
                 "jsonrpc": "2.0",
-                "id": (
-                    body.get("id")
-                    if ("body" in locals() and isinstance(body, dict))
-                    else None
-                ),
+                "id": body.get("id") if (body and isinstance(body, dict)) else None,
                 "error": {
                     "code": -32603,
                     "message": "Internal error",
