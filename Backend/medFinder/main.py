@@ -7,6 +7,7 @@ import logging
 import sys
 from uuid import uuid4
 from datetime import datetime, timezone
+from .schema import JSONRPCMessage
 
 
 logging.basicConfig(
@@ -46,18 +47,18 @@ def entry_point():
 
 
 @app.post("/a2a/{agentId}")
-async def a2a_endpoint(agentId: str, request: Request):
-    """Telex-compatible endpoint for Meddy location finder (no file_url)."""
-    body = None
+async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
+    """Telex-compatible endpoint for Meddy location finder."""
     try:
-        body = await request.json()
+        body_dict = body.dict()
 
-        if body.get("jsonrpc") != "2.0" or "id" not in body:
+        # Validate JSON-RPC
+        if body_dict.get("jsonrpc") != "2.0" or "id" not in body_dict:
             return JSONResponse(
                 status_code=400,
                 content={
                     "jsonrpc": "2.0",
-                    "id": body.get("id"),
+                    "id": body_dict.get("id"),
                     "error": {
                         "code": -32600,
                         "message": "Invalid Request: jsonrpc must be '2.0' and id is required",
@@ -65,10 +66,11 @@ async def a2a_endpoint(agentId: str, request: Request):
                 },
             )
 
-        params = body.get("params", {}) or {}
-        method = body.get("method")
+        method = body_dict.get("method")
+        params = body_dict.get("params", {}) or {}
         messages: List[Any] = []
 
+        # Extract messages
         if method == "message/send":
             msg = params.get("message")
             if msg:
@@ -82,7 +84,7 @@ async def a2a_endpoint(agentId: str, request: Request):
                 status_code=400,
                 content={
                     "jsonrpc": "2.0",
-                    "id": body.get("id"),
+                    "id": body_dict.get("id"),
                     "error": {"code": -32601, "message": "Method not found"},
                 },
             )
@@ -93,7 +95,7 @@ async def a2a_endpoint(agentId: str, request: Request):
                 status_code=400,
                 content={
                     "jsonrpc": "2.0",
-                    "id": body.get("id"),
+                    "id": body_dict.get("id"),
                     "error": {
                         "code": -32602,
                         "message": "Invalid params: no message provided",
@@ -101,7 +103,7 @@ async def a2a_endpoint(agentId: str, request: Request):
                 },
             )
 
-        # Extract text content
+        # Extract text
         parts = user_message.get("parts", []) or []
         text_parts = [
             p.get("content") or p.get("text")
@@ -111,22 +113,22 @@ async def a2a_endpoint(agentId: str, request: Request):
         text_content = " ".join(text_parts)
         reply_text = meddy_reply(text_content)
 
-        # Generate IDs and timestamp
+        # IDs and timestamp
         task_id = str(uuid4())
         message_id = str(uuid4())
         artifact_id = str(uuid4())
         context_id = str(uuid4())
         timestamp = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
-        # Build response matching Telex format, inline artifacts
+        # Build Telex-compatible response
         response = {
             "jsonrpc": "2.0",
-            "id": body.get("id"),
+            "id": body_dict.get("id"),
             "result": {
                 "id": task_id,
                 "contextId": context_id,
                 "status": {
-                    "state": "input-required",
+                    "state": "completed" if reply_text else "input-required",
                     "timestamp": timestamp,
                     "message": {
                         "messageId": message_id,
@@ -155,7 +157,7 @@ async def a2a_endpoint(agentId: str, request: Request):
             status_code=500,
             content={
                 "jsonrpc": "2.0",
-                "id": body.get("id") if (body and isinstance(body, dict)) else None,
+                "id": body.id if body else None,
                 "error": {
                     "code": -32603,
                     "message": "Internal error",
