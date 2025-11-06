@@ -112,15 +112,14 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         # **Await async meddy_reply**
         reply_text = await meddy_reply(text_content)
 
-        # ✅ Generate workflow_id here
-        workflow_id = str(uuid4())
-
         # IDs and timestamp
         task_id = str(uuid4())
         message_id = str(uuid4())
         artifact_id = str(uuid4())
         context_id = str(uuid4())
         timestamp = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+        workflow_id = context_id
 
         # Build Telex-compatible response (✅ include workflow_id)
         response = {
