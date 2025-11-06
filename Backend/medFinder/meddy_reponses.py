@@ -21,7 +21,7 @@ async def meddy_reply(message: str) -> str:
     places = await find_nearby_services(data["service"], lat, lon)
 
     if not places:
-        return f"Sorry, I couldn't find any {data['service']} near {data['location']}."
+        return f"Sorry, I couldn't find any {data['service']} near {data['location']}. Could you repeat the location please ? Or be more specific"
 
     msg = f"Here are {len(places)} {data['service']}s near {data['location']}:\n"
     for p in places[:5]:
