@@ -112,6 +112,9 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         # **Await async meddy_reply**
         reply_text = await meddy_reply(text_content)
 
+        # ✅ Generate workflow_id here
+        workflow_id = str(uuid4())
+
         # IDs and timestamp
         task_id = str(uuid4())
         message_id = str(uuid4())
@@ -119,13 +122,14 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         context_id = str(uuid4())
         timestamp = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
-        # Build Telex-compatible response
+        # Build Telex-compatible response (✅ include workflow_id)
         response = {
             "jsonrpc": "2.0",
             "id": body_dict.get("id"),
             "result": {
                 "id": task_id,
                 "contextId": context_id,
+                "workflowId": workflow_id,
                 "status": {
                     "state": "completed" if reply_text else "input-required",
                     "timestamp": timestamp,
@@ -156,7 +160,7 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
             status_code=500,
             content={
                 "jsonrpc": "2.0",
-                "id": body.id if body else None,
+                "id": getattr(body, "id", None),
                 "error": {
                     "code": -32603,
                     "message": "Internal error",
