@@ -3,7 +3,7 @@
 
 Meddy (also referred to as MedFinder in this repository) is a lightweight FastAPI service that provides two main capabilities:
 
-- A2A (agent-to-agent) JSON-RPC style message handling used by Telex-like agents (endpoint: POST /a2a/{agentId}).
+- A2A (agent-to-agent) JSON-RPC style message handling used by Telex-like agents (endpoint: POST /medfinder/a2a/{agentId}).
 - A small location / place finder that geocodes free-text place names and queries OpenStreetMap (Overpass) for nearby services (pharmacies, clinics, hospitals).
 
 This README documents the architecture, how to run the service locally, request/response shapes, debugging tips, and developer notes.
@@ -15,7 +15,7 @@ This README documents the architecture, how to run the service locally, request/
 - Requirements
 - Quick start (run locally)
 - Endpoints and examples
-	- A2A JSON-RPC (/a2a/{agentId})
+	- A2A JSON-RPC (/medfinder/a2a/{agentId})
 - Location finder (CLI & internals)
 - Contributing
 
@@ -35,7 +35,7 @@ Design goals:
 
 ## Repository layout (key files)
 
-- `main.py` — FastAPI application with endpoints and middleware. Contains the A2A handler (`/a2a/{agentId}`)
+- `main.py` — FastAPI application with endpoints and middleware. Contains the A2A handler (`/medfinder/a2a/{agentId}`)
 - `schema.py` — Pydantic models used to validate JSON-RPC messages and registration payloads (e.g., `JSONRPCMessage`, `Message`, `MessagePart`). Models are written to be strict about required fields and accept a few common alias shapes.
 - `location_finder.py` — Utilities to geocode a free-text place name (via Nominatim) and query Overpass for nearby services. Can be run as a script to reproduce location lookups.
 - `meddy_reponses.py` — Helper functions that format Meddy replies and task result payload structure expected by the caller.
@@ -64,13 +64,13 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 3. The app will expose endpoints such as:
 
-- POST http://127.0.0.1:8000/a2a/{agentId}
+- POST http://127.0.0.1:8000/medfinder/a2a/{agentId}
 
-Use the `/docs` path (Swagger UI) to view the OpenAPI docs when the server is running: http://127.0.0.1:8000/docs
+Use the `/docs` path (Swagger UI) to view the OpenAPI docs when the server is running: http://127.0.0.1:8000/medfinder/docs
 
 ## Endpoints and examples
 
-### 1) A2A JSON-RPC: POST /a2a/{agentId}
+### 1) A2A JSON-RPC: POST /medfinder/a2a/{agentId}
 
 This endpoint expects a JSON-RPC 2.0-like payload. The service validates requests and returns a structured `TaskResult` object (task id, status, message, artifacts, etc.).
 
@@ -95,7 +95,7 @@ Required shape (minimal example):
 Example curl (replace `meddy` with any agentId string):
 
 ```bash
-curl -X POST http://127.0.0.1:8000/a2a/meddy \
+curl -X POST http://127.0.0.1:8000/medfinder/a2a/meddy \
 	-H 'Content-Type: application/json' \
 	-d '{"jsonrpc":"2.0","id":"1","method":"message/send","params":{"message":{"role":"user","parts":[{"type":"text","content":"Find pharmacies near Warri"}]}}}'
 ```
@@ -131,7 +131,7 @@ from fastapi.testclient import TestClient
 from medFinder import main
 
 client = TestClient(main.app)
-resp = client.post('/a2a/meddy', json={
+resp = client.post('/medfinder/a2a/meddy', json={
 		'jsonrpc': '2.0',
 		'id': '1',
 		'method': 'message/send',
@@ -145,7 +145,7 @@ For CI or reproducible unit tests you should mock Nominatim and Overpass respons
 
 ## Troubleshooting
 
-- 404 when calling `/a2a/{agentId}` — ensure you are hitting the correct prefix/host/port and that UVicorn is running with the correct working directory. If you are running behind a reverse proxy that sets a path prefix, confirm the prefix is preserved or the service is mounted accordingly.
+- 404 when calling `/medfinder/a2a/{agentId}` — ensure you are hitting the correct prefix/host/port and that UVicorn is running with the correct working directory. If you are running behind a reverse proxy that sets a path prefix, confirm the prefix is preserved or the service is mounted accordingly.
 - Missing results from location queries — check whether Nominatim returned coordinates for the place name, then ensure Overpass query returned amenities.
 
 ## Contributing
