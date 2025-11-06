@@ -62,9 +62,18 @@ async def meddy_reply(message: str) -> str:
 
     for p in places[:limit]:
         name = p.get("name") or p.get("tags", {}).get("name") or "unnamed"
-        lat = p.get("lat") or p.get("latitude") or p.get("y") or "?"
-        lon = p.get("lon") or p.get("longitude") or p.get("x") or "?"
-        msg += f"- {name} ({lat}, {lon})\n"
+        location_text = (
+            p.get("location")
+            or p.get("tags", {}).get("addr:street")
+            or p.get("tags", {}).get("addr:city")
+            or ""
+        )
+        lat_p = p.get("lat") or p.get("latitude") or p.get("y") or "?"
+        lon_p = p.get("lon") or p.get("longitude") or p.get("x") or "?"
+        if location_text:
+            msg += f"- {name} — {location_text} ({lat_p}, {lon_p})\n"
+        else:
+            msg += f"- {name} ({lat_p}, {lon_p})\n"
 
     if total > shown:
         msg += f"...and {total - shown} more not shown.\n"

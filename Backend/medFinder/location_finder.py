@@ -57,14 +57,26 @@ async def find_nearby_services(service, lat, lon):
                 return []
 
             elements = data.get("elements", [])
-            results = [
-                {
-                    "name": e.get("tags", {}).get("name", "Unnamed"),
-                    "lat": e["lat"],
-                    "lon": e["lon"],
-                }
-                for e in elements
-            ]
+            results = []
+            for e in elements:
+                tags = e.get("tags", {}) or {}
+                addr_parts = []
+                for k in ("addr:housenumber", "addr:street", "addr:suburb", "addr:city", "addr:postcode"):
+                    v = tags.get(k)
+                    if v:
+                        addr_parts.append(v)
+
+                location_str = ", ".join(addr_parts) if addr_parts else None
+
+                results.append(
+                    {
+                        "name": tags.get("name", "Unnamed"),
+                        "lat": e.get("lat"),
+                        "lon": e.get("lon"),
+                        "location": location_str,
+                        "tags": tags,
+                    }
+                )
             print(f"Found {len(results)} {service}(s)")
             return results
 
