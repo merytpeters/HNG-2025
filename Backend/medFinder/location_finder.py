@@ -61,7 +61,13 @@ async def find_nearby_services(service, lat, lon):
             for e in elements:
                 tags = e.get("tags", {}) or {}
                 addr_parts = []
-                for k in ("addr:housenumber", "addr:street", "addr:suburb", "addr:city", "addr:postcode"):
+                for k in (
+                    "addr:housenumber",
+                    "addr:street",
+                    "addr:suburb",
+                    "addr:city",
+                    "addr:postcode",
+                ):
                     v = tags.get(k)
                     if v:
                         addr_parts.append(v)
