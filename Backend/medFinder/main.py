@@ -52,7 +52,6 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
     try:
         body_dict = body.dict()
 
-        # Validate JSON-RPC
         if body_dict.get("jsonrpc") != "2.0" or "id" not in body_dict:
             return JSONResponse(
                 status_code=400,
@@ -70,7 +69,6 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         params = body_dict.get("params", {}) or {}
         messages: List[Any] = []
 
-        # Extract messages
         if method == "message/send":
             msg = params.get("message")
             messages = [msg] if msg else params.get("messages", []) or []
@@ -100,7 +98,6 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
                 },
             )
 
-        # Extract text
         parts = user_message.get("parts", []) or []
         text_parts = [
             p.get("content") or p.get("text")
@@ -109,19 +106,24 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         ]
         text_content = " ".join(text_parts)
 
-        # **Await async meddy_reply**
         reply_text = await meddy_reply(text_content)
 
-        # IDs and timestamp
         task_id = str(uuid4())
         message_id = str(uuid4())
         artifact_id = str(uuid4())
         context_id = str(uuid4())
         timestamp = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
-        workflow_id = context_id
+        workflow_id = (
+            params.get("workflowId")
+            or params.get("workflow_id")
+            or user_message.get("workflowId")
+            or user_message.get("workflow_id")
+            or context_id
+        )
 
-        # Build Telex-compatible response (✅ include workflow_id)
+        print(f"Using workflow_id: {workflow_id}")
+
         response = {
             "jsonrpc": "2.0",
             "id": body_dict.get("id"),
@@ -155,6 +157,7 @@ async def a2a_endpoint(agentId: str, body: JSONRPCMessage):
         return JSONResponse(status_code=200, content=response)
 
     except Exception as e:
+
         return JSONResponse(
             status_code=500,
             content={
