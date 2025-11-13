@@ -13,4 +13,10 @@ Task - Country Exchange rate
 ## Stage 3
 Task - Telex AI (medFinder)
 
-See the medFinder README for full details and usage: [medFinder/README.md](medFinder/README.md)
+See the medFinder README for full details and usage: [medFinder/README.md](./medFinder/README.md)
+
+
+## Stage 4
+Distributed Notification System
+Microservices (team project)
+My build https://github.com/merytpeters/notification-system/tree/main/template-service
