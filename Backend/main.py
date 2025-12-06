@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from medFinder.main import app as medfinder
+from AISummarizationExtraction.app import app as ai_documents_app
 from myprofile.utils import get_cat_fact
 from myprofile.schema import Profile, get_profile
 from string_analyzers.schema import (
@@ -77,6 +78,7 @@ app.add_middleware(
 
 
 app.mount("/medfinder", medfinder)
+app.mount("/documents", ai_documents_app)
 
 
 @app.get("/")
