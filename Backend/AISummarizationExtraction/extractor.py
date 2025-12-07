@@ -1,5 +1,6 @@
 from typing import Optional
 
+
 def extract_text_from_pdf_bytes(data: bytes) -> str:
     try:
         from pypdf import PdfReader

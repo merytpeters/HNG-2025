@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 from typing import Tuple
-
 from dotenv import load_dotenv
+import logging
 
-load_dotenv()
+env_path = Path(__file__).parent / ".env"
+load_dotenv(env_path)
 
 MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
@@ -12,11 +13,12 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() in ("1", "true", "yes")
 MINIO_BUCKET = os.getenv("MINIO_BUCKET", "documents")
 
+logger = logging.getLogger(__name__)
+
 
 def save_file_bytes(filename: str, data: bytes) -> Tuple[str, str]:
     """
-    Save file to MinIO if configured else to local storage.
-
+    Save file to MinIO if configured, else save locally.
     Returns (storage_type, storage_path)
     """
     if MINIO_ENDPOINT and MINIO_ACCESS_KEY and MINIO_SECRET_KEY:
@@ -31,15 +33,15 @@ def save_file_bytes(filename: str, data: bytes) -> Tuple[str, str]:
                 secure=MINIO_SECURE,
             )
 
-            found = client.bucket_exists(MINIO_BUCKET)
-            if not found:
+            if not client.bucket_exists(MINIO_BUCKET):
                 client.make_bucket(MINIO_BUCKET)
 
             client.put_object(MINIO_BUCKET, filename, data, length=len(data))
             path = f"minio://{MINIO_BUCKET}/{filename}"
             return ("minio", path)
-        except Exception:
-            pass
+
+        except Exception as e:
+            logger.warning(f"MinIO upload failed: {e}. Falling back to local storage.")
 
     base = Path(__file__).parent.parent
     storage_dir = base / "storage" / "documents"

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from medFinder.main import app as medfinder
 from AISummarizationExtraction.app import app as ai_documents_app
+from AISummarizationExtraction import models as ai_document_models
 from myprofile.utils import get_cat_fact
 from myprofile.schema import Profile, get_profile
 from string_analyzers.schema import (
@@ -54,7 +55,7 @@ logger.propagate = True
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting up: creating database tables...")
-    SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(engine, checkfirst=True)
 
     yield
     print("Shutting down...")
