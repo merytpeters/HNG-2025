@@ -31,6 +31,7 @@ def save_file_bytes(filename: str, data: bytes) -> Tuple[str, str]:
                 access_key=MINIO_ACCESS_KEY,
                 secret_key=MINIO_SECRET_KEY,
                 secure=MINIO_SECURE,
+                region="auto",
             )
 
             if not client.bucket_exists(MINIO_BUCKET):
