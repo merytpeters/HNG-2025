@@ -3,6 +3,11 @@ from pathlib import Path
 from typing import Tuple
 from dotenv import load_dotenv
 import logging
+import io
+import uuid
+import mimetypes
+from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 env_path = Path(__file__).parent / ".env"
 load_dotenv(env_path)
@@ -16,6 +21,11 @@ MINIO_BUCKET = os.getenv("MINIO_BUCKET", "documents")
 logger = logging.getLogger(__name__)
 
 
+def _normalize_endpoint(endpoint: str) -> str:
+    parsed = urlparse(endpoint)
+    return parsed.netloc or parsed.path
+
+
 def save_file_bytes(filename: str, data: bytes) -> Tuple[str, str]:
     """
     Save file to MinIO if configured, else save locally.
@@ -24,25 +34,35 @@ def save_file_bytes(filename: str, data: bytes) -> Tuple[str, str]:
     if MINIO_ENDPOINT and MINIO_ACCESS_KEY and MINIO_SECRET_KEY:
         try:
             from minio import Minio
-            from minio.error import S3Error
 
+            endpoint = _normalize_endpoint(MINIO_ENDPOINT)
             client = Minio(
-                MINIO_ENDPOINT,
+                endpoint,
                 access_key=MINIO_ACCESS_KEY,
                 secret_key=MINIO_SECRET_KEY,
                 secure=MINIO_SECURE,
-                region="auto",
             )
 
             if not client.bucket_exists(MINIO_BUCKET):
                 client.make_bucket(MINIO_BUCKET)
 
-            client.put_object(MINIO_BUCKET, filename, data, length=len(data))
-            path = f"minio://{MINIO_BUCKET}/{filename}"
+            safe_name = Path(filename).name
+            key = f"documents/{datetime.now(timezone.utc).strftime('%Y/%m/%d')}/{uuid.uuid4().hex}-{safe_name}"
+
+            stream = io.BytesIO(data)
+            content_type = (
+                mimetypes.guess_type(safe_name)[0] or "application/octet-stream"
+            )
+            client.put_object(
+                MINIO_BUCKET, key, stream, length=len(data), content_type=content_type
+            )
+
+            path = f"minio://{MINIO_BUCKET}/{key}"
             return ("minio", path)
 
         except Exception as e:
-            logger.warning(f"MinIO upload failed: {e}. Falling back to local storage.")
+            logger.error(f"MinIO upload failed: {e}")
+            raise
 
     base = Path(__file__).parent.parent
     storage_dir = base / "storage" / "documents"
