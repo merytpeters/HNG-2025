@@ -6,9 +6,9 @@ from typing import Dict, Any
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from .crud import WalletCRUD
-from user.enums import TransactionStatus, TransactionType
+from WalletService.user.enums import TransactionStatus, TransactionType
 from datetime import datetime
-from user.models import Wallet
+from WalletService.user.models import Wallet
 
 PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize"
 PAYSTACK_SECRET = os.getenv("PAYSTACK_SECRET")
