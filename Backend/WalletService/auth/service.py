@@ -5,8 +5,8 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from typing import TypeVar, Callable, Any
-from user.schemas import GoogleIDTokenSchema, UserCreateOut
-from user.models import WalletUser
+from WalletService.user.schemas import GoogleIDTokenSchema, UserCreateOut
+from WalletService.user.models import WalletUser
 
 
 env_path = Path(__file__).parent.parent / ".env"
