@@ -4,7 +4,7 @@ from .apikey_service import APIKeyService
 from .apikey_schema import APIKeyCreateRequest, RolloverAPIKeyRequest
 from auth.jwt import get_current_identity
 from db import get_session
-from user.models import WalletUser
+from WalletService.user.models import WalletUser
 
 router = APIRouter(prefix="/keys", tags=["API Keys"])
 apikey_service = APIKeyService()
