@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from .apikey_service import APIKeyService
 from .apikey_schema import APIKeyCreateRequest, RolloverAPIKeyRequest
-from auth.jwt import get_current_identity
+from WalletService.auth.jwt import get_current_identity
 from db import get_session
 from WalletService.user.models import WalletUser
 
