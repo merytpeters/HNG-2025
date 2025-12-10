@@ -6,7 +6,7 @@ from .schemas import UserCreateOut
 from db import get_session
 from .user_service import UserService
 from .models import WalletUser
-from auth.service import GoogleIDTokenService
+from WalletService.auth.service import GoogleIDTokenService
 
 
 router = APIRouter(prefix="/auth", tags=["Google OAuth2.0"])
