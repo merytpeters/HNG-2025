@@ -1,7 +1,7 @@
 from .crud import UserCRUD
 from .schemas import UserCreateOut, GoogleIDTokenSchema
 from sqlalchemy.orm import Session
-from auth.service import GoogleIDTokenService
+from WalletService.auth.service import GoogleIDTokenService
 
 google_service = GoogleIDTokenService()
 
