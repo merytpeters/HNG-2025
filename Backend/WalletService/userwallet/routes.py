@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from db import get_session
-from auth.jwt import get_current_identity
+from WalletService.auth.jwt import get_current_identity
 from .schemas import (
     DepositRequest,
     DepositInitOut,
@@ -12,7 +12,7 @@ from .schemas import (
     TransactionListOut,
 )
 from .services import WalletService
-from user.models import APIKey
+from WalletService.user.models import APIKey
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 
