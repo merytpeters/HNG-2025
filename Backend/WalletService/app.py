@@ -1,8 +1,8 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import HTMLResponse
-from user.routes import router as auth_router
-from apikey.apikey_routes import router as apikey_router
-from userwallet.routes import router as wallet_router
+from WalletService.user.routes import router as auth_router
+from WalletService.apikey.apikey_routes import router as apikey_router
+from WalletService.userwallet.routes import router as wallet_router
 
 router = APIRouter()
 router.include_router(auth_router)
