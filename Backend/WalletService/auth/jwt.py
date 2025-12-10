@@ -4,10 +4,10 @@ from typing import Union, Optional
 from jose import JWTError, jwt
 from pathlib import Path
 from dotenv import load_dotenv
-from user.models import WalletUser, APIKey
-from user.crud import UserCRUD
+from WalletService.user.models import WalletUser, APIKey
+from WalletService.user.crud import UserCRUD
 from db import get_session
-from apikey.apikey_service import APIKeyService
+from WalletService.apikey.apikey_service import APIKeyService
 import os
 
 
