@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 
 from .apikey_crud import APIKeyCRUD
 from .apikey_schema import APIKeyCreateSchema, APIKeyOut
-from user.models import APIKey
-from user.enums import APIKey_Permissions
+from WalletService.user.models import APIKey
+from WalletService.user.enums import APIKey_Permissions
 from passlib.context import CryptContext
 
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
