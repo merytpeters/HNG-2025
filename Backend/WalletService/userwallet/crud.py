@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from typing import Optional, List
-from user.models import Wallet, Transaction
+from WalletService.user.models import Wallet, Transaction
 
 
 class WalletCRUD:
