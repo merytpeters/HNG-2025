@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from .apikey_schema import APIKeyCreateSchema
-from user.models import APIKey
+from WalletService.user.models import APIKey
 
 
 class APIKeyCRUD:
