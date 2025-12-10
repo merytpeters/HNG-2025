@@ -16,8 +16,6 @@ distro==1.9.0
 dnspython==2.8.0
 ecdsa==0.19.1
 email-validator==2.0.0
-en_core_web_md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0.tar.gz#sha256=504fe70715dca9464bf11e385fbe80e92ae127394df3f9c45242926082425551
-en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz#sha256=14a2f31bc476af87019819ea8c9948fabdfd473a442edd6b1cba62bf0c2c0f55
 fastapi==0.119.0
 fastapi-cli==0.0.14
 fastapi-cloud-cli==0.3.1
@@ -62,7 +60,7 @@ platformdirs==4.5.0
 preshed==3.0.10
 proto-plus==1.26.1
 protobuf==6.33.2
-psycopg2==2.9.11
+psycopg2-binary
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pycparser==2.23
