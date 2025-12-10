@@ -62,7 +62,6 @@ platformdirs==4.5.0
 preshed==3.0.10
 proto-plus==1.26.1
 protobuf==6.33.2
-psycop2==2.9.11
 psycopg2-binary
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
