@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from pydantic import BaseModel
-from user.enums import APIKey_Permissions
+from WalletService.user.enums import APIKey_Permissions
 from typing import List, Optional
 
 
