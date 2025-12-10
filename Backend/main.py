@@ -7,6 +7,8 @@ from fastapi.responses import FileResponse
 from medFinder.main import app as medfinder
 from AISummarizationExtraction.app import app as ai_documents_app
 from AISummarizationExtraction import models as ai_document_models
+from WalletService.app import app as paystack_apikeys_app
+from WalletService.user.models import Base as WalletBase
 from myprofile.utils import get_cat_fact
 from myprofile.schema import Profile, get_profile
 from string_analyzers.schema import (
@@ -56,6 +58,7 @@ logger.propagate = True
 async def lifespan(app: FastAPI):
     print("Starting up: creating database tables...")
     SQLModel.metadata.create_all(engine, checkfirst=True)
+    WalletBase.metadata.create_all(engine, checkfirst=True)
 
     yield
     print("Shutting down...")
@@ -80,6 +83,7 @@ app.add_middleware(
 
 app.mount("/medfinder", medfinder)
 app.mount("/documents", ai_documents_app)
+app.mount("/wallet-service", paystack_apikeys_app)
 
 
 @app.get("/")
