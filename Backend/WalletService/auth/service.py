@@ -102,23 +102,3 @@ class GoogleIDTokenService:
         id_token = token_data["id_token"]
 
         return self.decode_id_token(id_token)
-
-
-"""if __name__ == "__main__":
-    google_response = GoogleIDTokenSchema(
-        sub="1234567890",
-        email="merypeters@gmail.com",
-        email_verified=True,
-        name="Meryt",
-        aud=GOOGLE_CLIENT_ID,
-        exp=datetime(2025, 12, 10, 12, 0, 0, tzinfo=timezone.utc),
-        iss="accounts.google.com",
-    )
-
-    service = GoogleIDTokenService()
-
-    service.verify_token(google_response)
-
-    service.validate_email(google_response)
-
-    print("Google ID token verified and email validated successfully.")"""
