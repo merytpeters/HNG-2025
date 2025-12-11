@@ -101,10 +101,6 @@ class APIKeyService(APIKeyCRUD):
                 tzinfo=timezone.utc
             )
 
-        raise HTTPException(
-            status_code=400, detail="expiry must be one of: 1H, 1D, 1M, 1Y"
-        )
-
     def _generate_secret(self) -> str:
         return "sk_live_" + secrets.token_urlsafe(24)
 
