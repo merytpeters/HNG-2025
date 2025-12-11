@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, Depends, Request, HTTPException, Header
 from sqlalchemy.orm import Session
 from db import get_session
@@ -76,7 +77,7 @@ async def paystack_webhook(
     if not service.verify_paystack_signature(raw, x_paystack_signature):
         raise HTTPException(status_code=403, detail="Invalid Paystack signature")
 
-    payload = await request.json()
+    payload = json.loads(raw)
     result = service.handle_webhook(db, payload)
     return {"status": True, "detail": result.get("detail")}
 
