@@ -175,26 +175,21 @@ def transactions(
     return TransactionListOut(transactions=out_list)
 
 
-@router.get("/{wallet_number}")
-def get_wallet(
-    wallet_number: str,
+@router.get("/wallet")
+def get_my_wallet(
     db: Session = Depends(get_session),
     identity=Depends(get_current_identity),
 ):
-    """Return the wallet number path parameter.
+    """Get the current user's wallet number (no parameters needed)"""
 
-    This endpoint performs a read-permission check for API keys. Regular
-    users (identities with an email) are allowed.
-    """
-    if not _has_permission_identity(identity, "read") and not hasattr(
-        identity, "email"
-    ):
+    if not _has_permission_identity(identity, "read"):
         raise HTTPException(status_code=403, detail="API key missing read permission")
 
-    from WalletService.user.models import Wallet
+    user_id = _identity_to_user_id(identity)
 
-    wallet = db.get(Wallet, wallet_number)
+    wallet = service.get_wallet_by_user(db, user_id)
+
     if not wallet:
-        raise HTTPException(status_code=404, detail="Wallet not found")
+        raise HTTPException(status_code=404, detail="Wallet not found for user")
 
-    return {"wallet_number": wallet_number}
+    return {"wallet_number": wallet.wallet_number, "user_id": str(wallet.walletuser_id)}
