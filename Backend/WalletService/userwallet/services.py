@@ -10,6 +10,12 @@ from .crud import WalletCRUD
 from WalletService.user.enums import TransactionStatus, TransactionType
 from datetime import datetime, timezone
 from WalletService.user.models import Wallet
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
 
 PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize"
 PAYSTACK_SECRET = os.getenv("PAYSTACK_SECRET")
