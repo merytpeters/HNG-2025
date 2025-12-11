@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone, timedelta
 from typing import Type, cast, List, Dict
 import calendar
@@ -63,41 +64,43 @@ class APIKeyService(APIKeyCRUD):
         if from_dt is None:
             from_dt = datetime.now(timezone.utc)
         expiry = expiry.upper().strip()
-        if expiry == "1H":
-            return from_dt + timedelta(hours=1)
-        if expiry == "1D":
-            return from_dt + timedelta(days=1)
-        if expiry == "1M":
-            year = from_dt.year + (from_dt.month // 12)
-            month = from_dt.month + 1
-            if month > 12:
-                month -= 12
-                year += 1
+        
+        match = re.fullmatch(r"(\d+)([HDMY])", expiry)
+        if not match:
+            raise HTTPException(
+                status_code=400,
+                detail="expiry must follow format: <number><H|D|M|Y> e.g., 2H, 10D, 3M, 1Y",
+            )
+
+        value, unit = match.groups()
+        value = int(value)
+        if unit == "H":
+            return from_dt + timedelta(hours=value)
+        if unit == "D":
+            return from_dt + timedelta(days=value)
+        if unit == "M":
+            year = from_dt.year
+            month = from_dt.month + value
+            year += (month - 1) // 12
+            month = ((month - 1) % 12) + 1
+
             day = min(from_dt.day, calendar.monthrange(year, month)[1])
             return datetime(
-                year,
-                month,
-                day,
-                from_dt.hour,
-                from_dt.minute,
-                from_dt.second,
-                tzinfo=timezone.utc,
+                year, month, day,
+                from_dt.hour, from_dt.minute, from_dt.second,
+                tzinfo=timezone.utc
             )
-        if expiry == "1Y":
-            year = from_dt.year + 1
+
+        if unit == "Y":
+            year = from_dt.year + value
             month = from_dt.month
-            day = from_dt.day
-            last_day = calendar.monthrange(year, month)[1]
-            day = min(day, last_day)
+            day = min(from_dt.day, calendar.monthrange(year, month)[1])
             return datetime(
-                year,
-                month,
-                day,
-                from_dt.hour,
-                from_dt.minute,
-                from_dt.second,
-                tzinfo=timezone.utc,
+                year, month, day,
+                from_dt.hour, from_dt.minute, from_dt.second,
+                tzinfo=timezone.utc
             )
+
         raise HTTPException(
             status_code=400, detail="expiry must be one of: 1H, 1D, 1M, 1Y"
         )
