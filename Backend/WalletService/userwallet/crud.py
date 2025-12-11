@@ -45,7 +45,7 @@ class WalletCRUD:
             raise HTTPException(status_code=400, detail="Invalid transaction object")
 
         db.query(self.tx_model).filter(self.tx_model.id == tx_id).update(
-            {"transaction_status": status}
+            {self.tx_model.transaction_status: status}
         )
         db.commit()
         return db.get(self.tx_model, tx_id)

@@ -1,4 +1,5 @@
 import os
+import sys
 import hmac
 import hashlib
 import httpx
@@ -72,11 +73,18 @@ class WalletService(WalletCRUD):
         return {"reference": reference, "authorization_url": authorization_url}
 
     def verify_paystack_signature(self, raw_body: bytes, signature: str) -> bool:
-        if not PAYSTACK_SECRET:
+        secret = PAYSTACK_SECRET or os.getenv("PAYSTACK_SECRET")
+        if not secret:
+            for m in sys.modules.values():
+                if getattr(m, "__name__", "").endswith("userwallet.services"):
+                    if hasattr(m, "PAYSTACK_SECRET") and getattr(m, "PAYSTACK_SECRET"):
+                        secret = getattr(m, "PAYSTACK_SECRET")
+                        break
+
+        if not secret:
             return False
-        computed = hmac.new(
-            PAYSTACK_SECRET.encode(), raw_body, hashlib.sha512
-        ).hexdigest()
+
+        computed = hmac.new(secret.encode(), raw_body, hashlib.sha512).hexdigest()
         return hmac.compare_digest(computed, signature)
 
     def handle_webhook(self, db: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
