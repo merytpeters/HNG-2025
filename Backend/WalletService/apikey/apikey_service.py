@@ -63,7 +63,8 @@ class APIKeyService(APIKeyCRUD):
     def _parse_expiry(self, expiry: str, from_dt: datetime | None = None) -> datetime:
         if from_dt is None:
             from_dt = datetime.now(timezone.utc)
-        expiry = expiry.upper().strip()
+
+        expiry = expiry.strip()
 
         match = re.fullmatch(r"(\d+)([HDMY])", expiry)
         if not match:
