@@ -17,6 +17,7 @@ from .services import WalletService
 from WalletService.user.models import APIKey
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
+public_router = APIRouter(prefix="/wallet", tags=["wallet-public"])
 
 service = WalletService()
 
@@ -67,7 +68,7 @@ def deposit(
     )
 
 
-@router.post("/paystack/webhook")
+@public_router.post("/paystack/webhook")
 async def paystack_webhook(
     request: Request,
     x_paystack_signature: str | None = Header(None, alias="x-paystack-signature"),
