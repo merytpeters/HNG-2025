@@ -9,8 +9,8 @@ from WalletService.userwallet.routes import router as wallet_router
 auth_scheme = HTTPBearer()
 router = APIRouter()
 router.include_router(auth_router)
-router.include_router(apikey_router)
-router.include_router(wallet_router)
+router.include_router(apikey_router, dependencies=[Depends(auth_scheme)])
+router.include_router(wallet_router, dependencies=[Depends(auth_scheme)])
 
 __all__ = ["router"]
 
@@ -18,7 +18,6 @@ __all__ = ["router"]
 app = FastAPI(
     title="Wallet Service",
     description="Wallet service for Paystack deposits, transfers, and history, secured with JWT and API keys.",
-    dependencies=[Depends(auth_scheme)],
 )
 
 app.include_router(router, prefix="")
