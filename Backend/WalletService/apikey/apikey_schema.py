@@ -15,7 +15,7 @@ class APIKeyCreateSchema(BaseModel):
 
 
 class PermissionOut(BaseModel):
-    type: APIKey_Permissions
+    type: str
 
 
 class APIKeyOut(BaseModel):
@@ -30,7 +30,7 @@ class APIKeyOut(BaseModel):
 
 class APIKeyCreateRequest(BaseModel):
     name: str
-    permissions: List[APIKey_Permissions]
+    permissions: List[str]
     expiry: str
 
 

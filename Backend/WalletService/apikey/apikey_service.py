@@ -37,7 +37,7 @@ class APIKeyService(APIKeyCRUD):
         return APIKeyOut(
             walletuser_id=str(key.walletuser_id),
             name=str(key.name),
-            permissions=[PermissionOut(type=p) for p in key.permissions],
+            permissions=[PermissionOut(type=str(p)) for p in key.permissions],
             expires_at=key.expires_at,
             created_at=key.created_at,
             revoked=key.revoked,
@@ -52,7 +52,7 @@ class APIKeyService(APIKeyCRUD):
             APIKeyOut(
                 walletuser_id=str(k.walletuser_id),
                 name=str(k.name),
-                permissions=[PermissionOut(type=p) for p in k.permissions],
+                permissions=[PermissionOut(type=str(p)) for p in k.permissions],
                 expires_at=k.expires_at,
                 created_at=k.created_at,
                 revoked=k.revoked,
@@ -175,7 +175,10 @@ class APIKeyService(APIKeyCRUD):
             walletuser_id=str(old_key.walletuser_id),
             secret=hashed,
             name=f"{old_key.name}-rollover",
-            permissions=list(old_key.permissions),
+            permissions=[
+                p if isinstance(p, APIKey_Permissions) else APIKey_Permissions(p)
+                for p in list(old_key.permissions)
+            ],
             created_at=datetime.now(timezone.utc),
             expires_at=expires_at,
             revoked=False,
