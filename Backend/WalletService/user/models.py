@@ -3,11 +3,11 @@ from sqlalchemy import (
     Column,
     String,
     Float,
-    Integer,
     DateTime,
     ForeignKey,
     JSON,
     Boolean,
+    BigInteger
 )
 from sqlalchemy.orm import declarative_base, relationship
 from uuid import uuid4
@@ -59,7 +59,7 @@ class Wallet(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
     balance = Column(Float, nullable=False)
-    wallet_number = Column(Integer, nullable=False)
+    wallet_number = Column(BigInteger, unique=True, nullable=False)
     walletuser_id = Column(String(36), ForeignKey("walletusers.id"), nullable=False)
 
     walletuser = relationship("WalletUser", back_populates="wallets")
