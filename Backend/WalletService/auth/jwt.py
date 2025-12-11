@@ -18,7 +18,7 @@ user_crud = UserCRUD(WalletUser)
 apikey_service = APIKeyService()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "supersecret")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM") or "HS256"
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 
 def get_current_identity(

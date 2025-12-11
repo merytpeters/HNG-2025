@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from .models import WalletUser
 from .schemas import GoogleIDTokenSchema
+import random
+from .models import Wallet
 
 
 class UserCRUD:
@@ -38,6 +40,24 @@ class UserCRUD:
                 "google_sub": google_token.sub,
             }
             user = self.create(db, obj_data)
+
+            def _generate_wallet_number():
+                while True:
+                    num = random.randint(10**9, 10**10 - 1)
+                    existing = (
+                        db.query(Wallet).filter(Wallet.wallet_number == num).first()
+                    )
+                    if not existing:
+                        return num
+
+            wallet = Wallet(
+                balance=0.0,
+                wallet_number=_generate_wallet_number(),
+                walletuser_id=user.id,
+            )
+            db.add(wallet)
+            db.commit()
+            db.refresh(wallet)
         return user
 
     def create(self, session: Session, obj_data: dict):

@@ -20,7 +20,6 @@ service = WalletService()
 
 
 def _identity_to_user_id(identity):
-    # identity can be WalletUser or APIKey
     if hasattr(identity, "id") and getattr(identity, "email", None):
         return str(identity.id)
     if isinstance(identity, APIKey) or hasattr(identity, "walletuser_id"):
