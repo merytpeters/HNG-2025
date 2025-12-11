@@ -61,4 +61,8 @@ class APIKeyCRUD:
         if not key.expires_at:
             return True
 
-        return key.expires_at > now
+        expires_at = key.expires_at
+        if getattr(expires_at, "tzinfo", None) is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        return expires_at > now

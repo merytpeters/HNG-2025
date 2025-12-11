@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Header
 from sqlalchemy.orm import Session
 from db import get_session
 from WalletService.auth.jwt import get_current_identity
@@ -63,7 +63,11 @@ def deposit(
 
 
 @router.post("/paystack/webhook")
-async def paystack_webhook(request: Request, db: Session = Depends(get_session)):
+async def paystack_webhook(
+    request: Request,
+    x_paystack_signature: str = Header(..., alias="x-paystack-signature"),
+    db: Session = Depends(get_session),
+):
     raw = await request.body()
     signature = request.headers.get("x-paystack-signature") or request.headers.get(
         "X-Paystack-Signature"
