@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, timezone, timedelta
-from typing import Type, cast, List, Dict
+from typing import Type, cast, List, Dict, Any, Sequence
 import calendar
 import secrets
 import os
@@ -113,13 +113,47 @@ class APIKeyService(APIKeyCRUD):
     def _generate_secret(self) -> str:
         return "sk_live_" + secrets.token_urlsafe(24)
 
+    def _normalize_permissions_to_enum(
+        self, permissions: Sequence[Any]
+    ) -> List[APIKey_Permissions]:
+        """Normalize incoming permission representations to APIKey_Permissions enums.
+
+        Acceptable input items:
+        - APIKey_Permissions enum
+        - string like 'deposit'
+        - dict/object like {'type': 'deposit'}
+        """
+        if not permissions:
+            return []
+
+        perms_enum: List[APIKey_Permissions] = []
+        for p in permissions:
+            if isinstance(p, APIKey_Permissions):
+                perms_enum.append(p)
+                continue
+
+            if isinstance(p, dict):
+                t = p.get("type")
+                if not t:
+                    raise HTTPException(
+                        status_code=400, detail="Permission object missing 'type' field"
+                    )
+                perms_enum.append(APIKey_Permissions(t))
+                continue
+
+            try:
+                perms_enum.append(APIKey_Permissions(p))
+            except Exception:
+                raise HTTPException(status_code=400, detail=f"Invalid permission: {p}")
+
+        return perms_enum
+
     def create_key_with_expiry(
         self, db: Session, user_id: str, name: str, permissions: List[str], expiry: str
     ) -> Dict[str, str]:
         if not permissions:
             raise HTTPException(status_code=400, detail="Permissions must be provided")
 
-        # Max 5 active keys
         active_count = sum(
             1
             for k in self.get_user_api_keys(db, user_id)
@@ -133,10 +167,7 @@ class APIKeyService(APIKeyCRUD):
         now = datetime.now(timezone.utc)
         expires_at = self._parse_expiry(expiry, now)
 
-        perms_enum = [
-            p if isinstance(p, APIKey_Permissions) else APIKey_Permissions(p)
-            for p in permissions
-        ]
+        perms_enum = self._normalize_permissions_to_enum(permissions)
 
         api_secret = self._generate_secret()
         hashed = pwd.hash(api_secret)
@@ -177,7 +208,7 @@ class APIKeyService(APIKeyCRUD):
             name=f"{old_key.name}-rollover",
             permissions=[
                 p if isinstance(p, APIKey_Permissions) else APIKey_Permissions(p)
-                for p in list(old_key.permissions)
+                for p in old_key.permissions
             ],
             created_at=datetime.now(timezone.utc),
             expires_at=expires_at,

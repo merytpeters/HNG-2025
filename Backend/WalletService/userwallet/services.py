@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from .crud import WalletCRUD
 from WalletService.user.enums import TransactionStatus, TransactionType
-from datetime import datetime
+from datetime import datetime, timezone
 from WalletService.user.models import Wallet
 
 PAYSTACK_INIT_URL = "https://api.paystack.co/transaction/initialize"
@@ -149,7 +149,7 @@ class WalletService(WalletCRUD):
         recipient_tx = {
             "transaction_type": TransactionType.TRANSFER.value,
             "amount": float(amount),
-            "reference": f"tx-{datetime.utcnow().timestamp()}-in",
+            "reference": f"tx-{datetime.now(timezone.utc).timestamp()}-in",
             "transaction_status": TransactionStatus.SUCCESS.value,
             "authorization_url": None,
             "wallet_id": recipient_wallet.id,
