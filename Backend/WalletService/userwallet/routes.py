@@ -76,7 +76,7 @@ async def paystack_webhook(request: Request, db: Session = Depends(get_session))
 
     payload = await request.json()
     result = service.handle_webhook(db, payload)
-    return {"status": True}
+    return {"status": True, "detail": result.get("detail")}
 
 
 @router.get("/deposit/{reference}/status", response_model=DepositStatusOut)

@@ -40,10 +40,15 @@ class WalletCRUD:
     def update_transaction_status(
         self, db: Session, tx: Transaction, status: str
     ) -> Transaction:
-        tx.transaction_status = status
+        tx_id = getattr(tx, "id", None)
+        if not tx_id:
+            raise HTTPException(status_code=400, detail="Invalid transaction object")
+
+        db.query(self.tx_model).filter(self.tx_model.id == tx_id).update(
+            {"transaction_status": status}
+        )
         db.commit()
-        db.refresh(tx)
-        return tx
+        return db.get(self.tx_model, tx_id)
 
     def credit_wallet(self, db: Session, wallet: Wallet, amount: float) -> Wallet:
         wallet.balance = float(wallet.balance) + float(amount)
