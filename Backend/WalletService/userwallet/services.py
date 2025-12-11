@@ -18,17 +18,28 @@ class WalletService(WalletCRUD):
     def __init__(self):
         super().__init__()
 
-    def initialize_deposit(self, db: Session, user, amount: float, email: str) -> Dict[str, str]:
+    def initialize_deposit(
+        self, db: Session, user, amount: float, email: str
+    ) -> Dict[str, str]:
         if not PAYSTACK_SECRET:
-            raise HTTPException(status_code=500, detail="Paystack secret not configured")
+            raise HTTPException(
+                status_code=500, detail="Paystack secret not configured"
+            )
 
         payload = {"amount": int(float(amount) * 100), "email": email}
 
-        headers = {"Authorization": f"Bearer {PAYSTACK_SECRET}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {PAYSTACK_SECRET}",
+            "Content-Type": "application/json",
+        }
 
-        resp = httpx.post(PAYSTACK_INIT_URL, json=payload, headers=headers, timeout=15.0)
+        resp = httpx.post(
+            PAYSTACK_INIT_URL, json=payload, headers=headers, timeout=15.0
+        )
         if resp.status_code != 200:
-            raise HTTPException(status_code=502, detail=f"Paystack init failed: {resp.text}")
+            raise HTTPException(
+                status_code=502, detail=f"Paystack init failed: {resp.text}"
+            )
 
         data = resp.json()
         if not data.get("status"):
@@ -63,7 +74,9 @@ class WalletService(WalletCRUD):
     def verify_paystack_signature(self, raw_body: bytes, signature: str) -> bool:
         if not PAYSTACK_SECRET:
             return False
-        computed = hmac.new(PAYSTACK_SECRET.encode(), raw_body, hashlib.sha512).hexdigest()
+        computed = hmac.new(
+            PAYSTACK_SECRET.encode(), raw_body, hashlib.sha512
+        ).hexdigest()
         return hmac.compare_digest(computed, signature)
 
     def handle_webhook(self, db: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -103,7 +116,11 @@ class WalletService(WalletCRUD):
         tx = self.get_transaction_by_reference(db, reference)
         if not tx:
             raise HTTPException(status_code=404, detail="Transaction not found")
-        return {"reference": tx.reference, "status": tx.transaction_status, "amount": float(tx.amount)}
+        return {
+            "reference": tx.reference,
+            "status": tx.transaction_status,
+            "amount": float(tx.amount),
+        }
 
     def get_balance_for_user(self, db: Session, user_id: str) -> float:
         wallet = self.get_wallet_by_user(db, user_id)

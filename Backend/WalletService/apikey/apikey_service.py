@@ -64,7 +64,7 @@ class APIKeyService(APIKeyCRUD):
         if from_dt is None:
             from_dt = datetime.now(timezone.utc)
         expiry = expiry.upper().strip()
-        
+
         match = re.fullmatch(r"(\d+)([HDMY])", expiry)
         if not match:
             raise HTTPException(
@@ -86,9 +86,13 @@ class APIKeyService(APIKeyCRUD):
 
             day = min(from_dt.day, calendar.monthrange(year, month)[1])
             return datetime(
-                year, month, day,
-                from_dt.hour, from_dt.minute, from_dt.second,
-                tzinfo=timezone.utc
+                year,
+                month,
+                day,
+                from_dt.hour,
+                from_dt.minute,
+                from_dt.second,
+                tzinfo=timezone.utc,
             )
 
         if unit == "Y":
@@ -96,9 +100,13 @@ class APIKeyService(APIKeyCRUD):
             month = from_dt.month
             day = min(from_dt.day, calendar.monthrange(year, month)[1])
             return datetime(
-                year, month, day,
-                from_dt.hour, from_dt.minute, from_dt.second,
-                tzinfo=timezone.utc
+                year,
+                month,
+                day,
+                from_dt.hour,
+                from_dt.minute,
+                from_dt.second,
+                tzinfo=timezone.utc,
             )
 
     def _generate_secret(self) -> str:

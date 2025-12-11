@@ -18,7 +18,7 @@ __all__ = ["router"]
 app = FastAPI(
     title="Wallet Service",
     description="Wallet service for Paystack deposits, transfers, and history, secured with JWT and API keys.",
-    dependencies=[Depends(auth_scheme)]
+    dependencies=[Depends(auth_scheme)],
 )
 
 app.include_router(router, prefix="")

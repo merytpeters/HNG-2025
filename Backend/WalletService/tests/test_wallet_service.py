@@ -55,7 +55,10 @@ def test_handle_webhook_success_idempotent():
     db.commit()
     db.refresh(tx)
 
-    payload = {"event": "charge.success", "data": {"reference": "ref-123", "status": "success", "amount": 500000}}
+    payload = {
+        "event": "charge.success",
+        "data": {"reference": "ref-123", "status": "success", "amount": 500000},
+    }
 
     res = svc.handle_webhook(db, payload)
     db.refresh(wallet)
