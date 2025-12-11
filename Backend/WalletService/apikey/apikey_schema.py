@@ -14,11 +14,15 @@ class APIKeyCreateSchema(BaseModel):
     revoked: bool = False
 
 
+class PermissionOut(BaseModel):
+    type: APIKey_Permissions
+
+
 class APIKeyOut(BaseModel):
     walletuser_id: str
     name: str
     secret: Optional[str]
-    permissions: List[APIKey_Permissions]
+    permissions: List[PermissionOut]
     expires_at: datetime
     created_at: datetime
     revoked: bool

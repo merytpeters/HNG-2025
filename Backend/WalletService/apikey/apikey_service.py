@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from .apikey_crud import APIKeyCRUD
-from .apikey_schema import APIKeyCreateSchema, APIKeyOut
+from .apikey_schema import APIKeyCreateSchema, APIKeyOut, PermissionOut
 from WalletService.user.models import APIKey
 from WalletService.user.enums import APIKey_Permissions
 from passlib.context import CryptContext
@@ -37,7 +37,7 @@ class APIKeyService(APIKeyCRUD):
         return APIKeyOut(
             walletuser_id=str(key.walletuser_id),
             name=str(key.name),
-            permissions=list(key.permissions),
+            permissions=[PermissionOut(type=p) for p in key.permissions],
             expires_at=key.expires_at,
             created_at=key.created_at,
             revoked=key.revoked,
@@ -52,7 +52,7 @@ class APIKeyService(APIKeyCRUD):
             APIKeyOut(
                 walletuser_id=str(k.walletuser_id),
                 name=str(k.name),
-                permissions=list(k.permissions),
+                permissions=[PermissionOut(type=p) for p in k.permissions],
                 expires_at=k.expires_at,
                 created_at=k.created_at,
                 revoked=k.revoked,
