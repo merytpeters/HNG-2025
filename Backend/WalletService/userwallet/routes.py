@@ -73,24 +73,32 @@ async def paystack_webhook(
     x_paystack_signature: str | None = Header(None, alias="x-paystack-signature"),
     db: Session = Depends(get_session),
 ):
-
     raw = await request.body()
 
-    logger.debug("Received Paystack webhook: headers=%s", dict(request.headers))
-    logger.debug("Signature header: %s", x_paystack_signature)
-    logger.debug("Raw body preview: %s", raw[:200])
+    print("\n" + "=" * 80)
+    print("PAYSTACK WEBHOOK RECEIVED")
+    print("=" * 80)
+    print(f"Headers: {dict(request.headers)}")
+    print(f"Signature: {x_paystack_signature}")
+    print(f"Body length: {len(raw)}")
+    print(f"Body: {raw.decode('utf-8')}")
+    print("=" * 80 + "\n")
 
     if not x_paystack_signature:
-        logger.warning("Missing Paystack signature header")
+        print("ERROR: Missing signature header")
         raise HTTPException(status_code=400, detail="Missing Paystack signature")
 
-    if not service.verify_paystack_signature(raw, x_paystack_signature):
-        logger.warning("Invalid Paystack signature for incoming webhook")
+    is_valid = service.verify_paystack_signature(raw, x_paystack_signature)
+    print(f"Signature valid: {is_valid}\n")
+
+    if not is_valid:
+        print("ERROR: Signature verification FAILED - returning 403")
         raise HTTPException(status_code=403, detail="Invalid Paystack signature")
+
     try:
         payload = json.loads(raw)
     except json.JSONDecodeError:
-        logger.exception("Invalid JSON payload received from Paystack")
+        print("ERROR: Invalid JSON")
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
     result = service.handle_webhook(db, payload)
