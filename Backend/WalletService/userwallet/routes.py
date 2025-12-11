@@ -69,13 +69,11 @@ async def paystack_webhook(
     db: Session = Depends(get_session),
 ):
     raw = await request.body()
-    signature = request.headers.get("x-paystack-signature") or request.headers.get(
-        "X-Paystack-Signature"
-    )
-    if not signature:
+
+    if not x_paystack_signature:
         raise HTTPException(status_code=400, detail="Missing Paystack signature")
 
-    if not service.verify_paystack_signature(raw, signature):
+    if not service.verify_paystack_signature(raw, x_paystack_signature):
         raise HTTPException(status_code=403, detail="Invalid Paystack signature")
 
     payload = await request.json()
