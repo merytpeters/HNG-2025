@@ -1,4 +1,5 @@
 import json
+import logging
 from fastapi import APIRouter, Depends, Request, HTTPException, Header
 from sqlalchemy.orm import Session
 from db import get_session
@@ -18,6 +19,9 @@ from WalletService.user.models import APIKey
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 
 service = WalletService()
+
+# logger for this module
+logger = logging.getLogger(__name__)
 
 
 def _identity_to_user_id(identity):
@@ -66,18 +70,29 @@ def deposit(
 @router.post("/paystack/webhook")
 async def paystack_webhook(
     request: Request,
-    x_paystack_signature: str = Header(..., alias="x-paystack-signature"),
+    x_paystack_signature: str | None = Header(None, alias="x-paystack-signature"),
     db: Session = Depends(get_session),
 ):
+
     raw = await request.body()
 
+    logger.debug("Received Paystack webhook: headers=%s", dict(request.headers))
+    logger.debug("Signature header: %s", x_paystack_signature)
+    logger.debug("Raw body preview: %s", raw[:200])
+
     if not x_paystack_signature:
+        logger.warning("Missing Paystack signature header")
         raise HTTPException(status_code=400, detail="Missing Paystack signature")
 
     if not service.verify_paystack_signature(raw, x_paystack_signature):
+        logger.warning("Invalid Paystack signature for incoming webhook")
         raise HTTPException(status_code=403, detail="Invalid Paystack signature")
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        logger.exception("Invalid JSON payload received from Paystack")
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
-    payload = json.loads(raw)
     result = service.handle_webhook(db, payload)
     return {"status": True, "detail": result.get("detail")}
 

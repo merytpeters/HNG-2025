@@ -3,6 +3,7 @@ import sys
 import hmac
 import hashlib
 import httpx
+import logging
 from typing import Dict, Any
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -10,6 +11,9 @@ from .crud import WalletCRUD
 from WalletService.user.enums import TransactionStatus, TransactionType
 from datetime import datetime, timezone
 from WalletService.user.models import Wallet
+
+# module logger (debug-level logs; avoid exposing secrets in production)
+logger = logging.getLogger(__name__)
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -88,10 +92,18 @@ class WalletService(WalletCRUD):
                         break
 
         if not secret:
+            logger.error("No PAYSTACK_SECRET available to verify signature")
             return False
 
         computed = hmac.new(secret.encode(), raw_body, hashlib.sha512).hexdigest()
-        return hmac.compare_digest(computed, signature)
+
+        # Debug logs (don't log secret). This helps in staging to diagnose
+        # mismatches between computed and received signatures.
+        logger.debug("Received signature: %s", signature)
+        logger.debug("Computed signature: %s", computed)
+        match = hmac.compare_digest(computed, signature)
+        logger.debug("Signature match: %s", match)
+        return match
 
     def handle_webhook(self, db: Session, payload: Dict[str, Any]) -> Dict[str, Any]:
 
