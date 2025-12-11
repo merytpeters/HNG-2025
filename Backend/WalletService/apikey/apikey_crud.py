@@ -52,5 +52,13 @@ class APIKeyCRUD:
         key = self.get_api_key(db, id)
         if not key:
             return False
+
         now = datetime.now(timezone.utc)
-        return not key.revoked and key.expires_at > now  # type: ignore
+
+        if key.revoked:
+            return False
+
+        if not key.expires_at:
+            return True
+
+        return key.expires_at > now

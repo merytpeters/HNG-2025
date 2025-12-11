@@ -7,7 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     Boolean,
-    BigInteger
+    BigInteger,
 )
 from sqlalchemy.orm import declarative_base, relationship
 from uuid import uuid4
