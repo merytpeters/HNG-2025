@@ -62,7 +62,9 @@ class WalletService(WalletCRUD):
             authorization_url = auth.get("authorization_url")
 
             if not reference:
-                raise HTTPException(status_code=502, detail="Paystack reference missing")
+                raise HTTPException(
+                    status_code=502, detail="Paystack reference missing"
+                )
 
             reference = cast(str, reference)
 
@@ -120,7 +122,9 @@ class WalletService(WalletCRUD):
             amount = data.get("amount")
 
             if reference is None:
-                raise HTTPException(status_code=400, detail="Missing reference in webhook")
+                raise HTTPException(
+                    status_code=400, detail="Missing reference in webhook"
+                )
 
             tx = self.get_transaction_by_reference(db, reference)
             if not tx:
@@ -133,7 +137,9 @@ class WalletService(WalletCRUD):
             if status and status.lower() in ("success", "completed", "true"):
                 wallet = db.get(Wallet, tx.wallet_id)
                 if not wallet:
-                    self.update_transaction_status(db, tx, TransactionStatus.FAILED.value)
+                    self.update_transaction_status(
+                        db, tx, TransactionStatus.FAILED.value
+                    )
                     return {"status": True, "detail": "wallet not found"}
 
                 credited_amount = float(cast(Any, tx.amount))

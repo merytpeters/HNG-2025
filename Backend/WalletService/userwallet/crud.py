@@ -52,7 +52,10 @@ class WalletCRUD:
 
     def credit_wallet(self, db: Session, wallet: Wallet, amount: float) -> Wallet:
         db.query(self.wallet_model).filter(self.wallet_model.id == wallet.id).update(
-              {self.wallet_model.balance: float(getattr(wallet, "balance", 0)) + float(amount)}
+            {
+                self.wallet_model.balance: float(getattr(wallet, "balance", 0))
+                + float(amount)
+            }
         )
         db.commit()
         db.refresh(wallet)

@@ -169,9 +169,11 @@ def transactions(
     out_list = [
         TransactionOut(
             type=str(cast(Any, t.transaction_type)),
-            amount=t.amount
-            if isinstance(t.amount, (int, float))
-            else float(cast(Any, t.amount)),
+            amount=(
+                t.amount
+                if isinstance(t.amount, (int, float))
+                else float(cast(Any, t.amount))
+            ),
             status=str(cast(Any, t.transaction_status)),
         )
         for t in txs

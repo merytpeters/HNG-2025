@@ -61,4 +61,3 @@ async def google_code_only(code: str):
     Debug endpoint: returns the Google OAuth code as-is.
     """
     return {"code": code}
-
