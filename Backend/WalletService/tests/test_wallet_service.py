@@ -4,8 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from typing import cast
 from WalletService.user.models import Base, WalletUser, Wallet, Transaction
-from WalletService.userwallet.services import WalletService, PAYSTACK_SECRET
-import os
+from WalletService.userwallet.services import WalletService
 
 
 def create_in_memory_db():
