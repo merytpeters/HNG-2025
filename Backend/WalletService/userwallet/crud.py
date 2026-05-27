@@ -51,15 +51,20 @@ class WalletCRUD:
         return db.get(self.tx_model, tx_id)
 
     def credit_wallet(self, db: Session, wallet: Wallet, amount: float) -> Wallet:
-        wallet.balance = float(wallet.balance) + float(amount)
+        db.query(self.wallet_model).filter(self.wallet_model.id == wallet.id).update(
+              {self.wallet_model.balance: float(getattr(wallet, "balance", 0)) + float(amount)}
+        )
         db.commit()
         db.refresh(wallet)
         return wallet
 
     def debit_wallet(self, db: Session, wallet: Wallet, amount: float) -> Wallet:
-        if float(wallet.balance) < float(amount):
+        current_balance = float(getattr(wallet, "balance", 0))
+        if current_balance < float(amount):
             raise HTTPException(status_code=400, detail="Insufficient balance")
-        wallet.balance = float(wallet.balance) - float(amount)
+        db.query(self.wallet_model).filter(self.wallet_model.id == wallet.id).update(
+            {self.wallet_model.balance: current_balance - float(amount)}
+        )
         db.commit()
         db.refresh(wallet)
         return wallet

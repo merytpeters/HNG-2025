@@ -53,3 +53,12 @@ async def google_callback(code: str, db: Session = Depends(get_session)):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/google/code")
+async def google_code_only(code: str):
+    """
+    Debug endpoint: returns the Google OAuth code as-is.
+    """
+    return {"code": code}
+

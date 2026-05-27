@@ -2,8 +2,9 @@ import hmac
 import hashlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from user.models import Base, WalletUser, Wallet, Transaction
-from userwallet.services import WalletService, PAYSTACK_SECRET
+from typing import cast
+from WalletService.user.models import Base, WalletUser, Wallet, Transaction
+from WalletService.userwallet.services import WalletService, PAYSTACK_SECRET
 import os
 
 
@@ -16,7 +17,7 @@ def create_in_memory_db():
 
 def test_verify_paystack_signature():
     svc = WalletService()
-    # patch secret
+
     svc_secret = "test_secret"
     # set module level var
     import userwallet.services as services_module
@@ -63,13 +64,13 @@ def test_handle_webhook_success_idempotent():
     res = svc.handle_webhook(db, payload)
     db.refresh(wallet)
     db.refresh(tx)
-    assert wallet.balance == 15000.0
-    assert tx.transaction_status == "success"
+    assert cast(float, wallet.balance) == 15000.0
+    assert getattr(tx, "transaction_status") == "success"
     assert res.get("status") is True
 
     res2 = svc.handle_webhook(db, payload)
     db.refresh(wallet)
-    assert wallet.balance == 15000.0
+    assert cast(float, wallet.balance) == 15000.0
     assert res2.get("status") is True
 
 
@@ -95,8 +96,8 @@ def test_transfer_atomic():
 
     db.refresh(sw)
     db.refresh(rw)
-    assert sw.balance == 7000.0
-    assert rw.balance == 5000.0
+    assert cast(float, sw.balance) == 7000.0
+    assert cast(float, rw.balance) == 5000.0
 
     # ensure two transaction records were created
     txs_sender = db.query(Transaction).filter(Transaction.wallet_id == sw.id).all()

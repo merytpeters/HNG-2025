@@ -12,9 +12,11 @@ from .schemas import (
     TransferRequest,
     SimpleOut,
     TransactionListOut,
+    TransactionOut,
 )
 from .services import WalletService
 from WalletService.user.models import APIKey
+from typing import Any, cast
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 public_router = APIRouter(prefix="/wallet", tags=["wallet-public"])
@@ -165,11 +167,13 @@ def transactions(
     user_id = _identity_to_user_id(identity)
     txs = service.list_transactions_for_user(db, user_id)
     out_list = [
-        {
-            "type": t.transaction_type,
-            "amount": float(t.amount),
-            "status": t.transaction_status,
-        }
+        TransactionOut(
+            type=str(cast(Any, t.transaction_type)),
+            amount=t.amount
+            if isinstance(t.amount, (int, float))
+            else float(cast(Any, t.amount)),
+            status=str(cast(Any, t.transaction_status)),
+        )
         for t in txs
     ]
     return TransactionListOut(transactions=out_list)
